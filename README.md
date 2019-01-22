@@ -1,12 +1,5 @@
-# Important notice:
-If you used the master branch before Sep. 26 2017 and its corresponding pretrained model, **PLEASE PAY ATTENTION**:
-The old master branch in now under old_master, you can still run the code and download the pretrained model, but the pretrained model for that old master is not compatible to the current master!
-
-The main differences between new and old master branch are in this two commits: [9d4c24e](https://github.com/ruotianluo/pytorch-faster-rcnn/commit/9d4c24e83c3e4ec33751e50d5e4d8b1dd793dfaa), [c899ce7](https://github.com/ruotianluo/pytorch-faster-rcnn/commit/c899ce70dae62e3db1a5805eda96df88e4b59ca6)
-The change is related to this [issue](https://github.com/ruotianluo/pytorch-faster-rcnn/issues/6); master now matches all the details in [tf-faster-rcnn](https://github.com/endernewton/tf-faster-rcnn) so that we can now convert pretrained tf model to pytorch model.
-
 # pytorch-faster-rcnn
-A pytorch implementation of faster RCNN detection framework based on Xinlei Chen's [tf-faster-rcnn](https://github.com/endernewton/tf-faster-rcnn). Xinlei Chen's repository is based on the python Caffe implementation of faster RCNN available [here](https://github.com/rbgirshick/py-faster-rcnn).
+A pytorch implementation of fast RCNN and faster RCNN detection framework based on Xinlei Chen's [tf-faster-rcnn](https://github.com/endernewton/tf-faster-rcnn) and the python Caffe implementation of faster RCNN available [here](https://github.com/rbgirshick/py-faster-rcnn).
 
 **Note**: Several minor modifications are made when reimplementing the framework, which give potential improvements. For details about the modifications and ablative analysis, please refer to the technical report [An Implementation of Faster RCNN with Study for Region Sampling](https://arxiv.org/pdf/1702.02138.pdf). If you are seeking to reproduce the results in the original paper, please use the [official code](https://github.com/ShaoqingRen/faster_rcnn) or maybe the [semi-official code](https://github.com/rbgirshick/py-faster-rcnn). For details about the faster RCNN architecture please refer to the paper [Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks](http://arxiv.org/pdf/1506.01497.pdf).
 
@@ -61,12 +54,11 @@ Additional features not mentioned in the [report](https://arxiv.org/pdf/1702.021
   - A basic pytorch installation. The code follows **1.0**. If you are using old **0.1.12** or **0.2** or **0.3** or **0.4**, you can checkout the corresponding branch.
   - Python packages you might not have: `opencv-python`, `easydict` (similar to [py-faster-rcnn](https://github.com/rbgirshick/py-faster-rcnn)). For `easydict` make sure you have the right version. Xinlei uses 1.6.
   - [tensorboard-pytorch](https://github.com/lanpa/tensorboard-pytorch) to visualize the training and validation curve. Please build from source to use the latest tensorflow-tensorboard.
-  - ~~Docker users: Since the recent upgrade, the docker image on docker hub (https://hub.docker.com/r/mbuckler/tf-faster-rcnn-deps/) is no longer valid. However, you can still build your own image by using dockerfile located at `docker` folder (cuda 8 version, as it is required by Tensorflow r1.0.) And make sure following Tensorflow installation to install and use nvidia-docker[https://github.com/NVIDIA/nvidia-docker]. Last, after launching the container, you have to build the Cython modules within the running container.~~
 
 ### Installation
 1. Clone the repository
   ```Shell
-  git clone https://github.com/ruotianluo/pytorch-faster-rcnn.git
+  git clone https://github.com/adityaarun1/pytorch-fast-er-rcnn.git
   ```
 
 2. Compile modules(nms, roi_pooling, and roi_align(from [facebookresearch/maskrcnn-benchmark](https://github.com/facebookresearch/maskrcnn-benchmark.git))):
@@ -97,7 +89,6 @@ If you find it useful, the ``data/cache`` folder created on Xinlei's side is als
   # ./data/scripts/fetch_faster_rcnn_models.sh
   ```
   **Note**: if you cannot download the models through the link, or you want to try more models, you can check out the following solutions and optionally update the downloading script: -->
-  - ~~Another server [here](http://gs11655.sp.cs.cmu.edu/xinleic/tf-faster-rcnn/).~~
   - Google drive [here](https://drive.google.com/open?id=0B7fNdx_jAqhtNE10TDZDbFRuU0E).
 
 **(Optional)**
