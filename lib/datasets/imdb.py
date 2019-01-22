@@ -28,7 +28,7 @@ class imdb(object):
         else:
             self._classes = classes
         self._image_index = []
-        self._obj_proposer = 'gt'
+        self._obj_proposer = 'selective_search' #'gt'
         self._roidb = None
         self._roidb_handler = self.default_roidb
         # Use this dict for storing dataset specific config options
