@@ -66,7 +66,7 @@ class Network(nn.Module):
                                     )
 
         return tb.summary.image('GROUND_TRUTH',
-                                image[0].astype('float32') / 255.0)
+                                image[0].astype('float32') / 255.0, dataformats='HWC')
 
     def _add_act_summary(self, key, tensor):
         return tb.summary.histogram(

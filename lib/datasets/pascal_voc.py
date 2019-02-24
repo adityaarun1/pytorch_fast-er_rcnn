@@ -70,7 +70,7 @@ class pascal_voc(imdb):
             'use_salt': True,
             'use_diff': use_diff,
             'matlab_eval': False,
-            'rpn_file': None
+            'rpn_file': None,
             'min_size': 2
         }
 
@@ -152,7 +152,7 @@ class pascal_voc(imdb):
         if os.path.exists(cache_file):
             with open(cache_file, 'rb') as fid:
                 roidb = pickle.load(fid)
-            print '{} ss roidb loaded from {}'.format(self.name, cache_file)
+            print('{} ss roidb loaded from {}'.format(self.name, cache_file))
             return roidb
 
         if int(self._year) == 2007 or self._image_set != 'test':
@@ -163,7 +163,7 @@ class pascal_voc(imdb):
             roidb = self._load_selective_search_roidb(None)
         with open(cache_file, 'wb') as fid:
             pickle.dump(roidb, fid, pickle.HIGHEST_PROTOCOL)
-        print 'wrote ss roidb to {}'.format(cache_file)
+        print('wrote ss roidb to {}'.format(cache_file))
 
         return roidb
 
