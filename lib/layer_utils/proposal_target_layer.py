@@ -17,7 +17,7 @@ from utils.bbox import bbox_overlaps
 import torch
 
 
-def proposal_target_layer(rpn_rois, rpn_scores, gt_boxes, _num_classes):
+def proposal_target_layer(proposal_rois, roi_scores, gt_boxes, _num_classes):
     """
   Assign object detection proposals to ground-truth targets. Produces proposal
   classification labels and bounding-box regression targets.
@@ -25,16 +25,17 @@ def proposal_target_layer(rpn_rois, rpn_scores, gt_boxes, _num_classes):
 
     # Proposal ROIs (0, x1, y1, x2, y2) coming from RPN
     # (i.e., rpn.proposal_layer.ProposalLayer), or any other source
-    all_rois = rpn_rois
-    all_scores = rpn_scores
+    all_rois = proposal_rois
+    all_scores = roi_scores
 
     # Include ground-truth boxes in the set of candidate rois
     if cfg.TRAIN.USE_GT:
-        zeros = rpn_rois.new_zeros(gt_boxes.shape[0], 1)
+        zeros = proposal_rois.new_zeros(gt_boxes.shape[0], 1)
         all_rois = torch.cat((all_rois, torch.cat(
             (zeros, gt_boxes[:, :-1]), 1)), 0)
-        # not sure if it a wise appending, but anyway i am not using it
-        all_scores = torch.cat((all_scores, zeros), 0)
+        # not sure if it is wise appending, but anyway i am not using it
+        if all_scores is not None:  # condition is true only when RPN is present
+            all_scores = torch.cat((all_scores, zeros), 0)
 
     num_images = 1
     rois_per_image = cfg.TRAIN.BATCH_SIZE / num_images
@@ -47,7 +48,8 @@ def proposal_target_layer(rpn_rois, rpn_scores, gt_boxes, _num_classes):
         _num_classes)
 
     rois = rois.view(-1, 5)
-    roi_scores = roi_scores.view(-1)
+    if roi_scores is not None:  # condition is true only when RPN is present
+        roi_scores = roi_scores.view(-1)
     labels = labels.view(-1, 1)
     bbox_targets = bbox_targets.view(-1, _num_classes * 4)
     bbox_inside_weights = bbox_inside_weights.view(-1, _num_classes * 4)
@@ -160,7 +162,10 @@ def _sample_rois(all_rois, all_scores, gt_boxes, fg_rois_per_image,
     # Clamp labels for the background RoIs to 0
     labels[int(fg_rois_per_image):] = 0
     rois = all_rois[keep_inds].contiguous()
-    roi_scores = all_scores[keep_inds].contiguous()
+    if all_scores is not None:  # condition only true when RPN is present
+        roi_scores = all_scores[keep_inds].contiguous()
+    else:
+        roi_scores = None
 
     bbox_target_data = _compute_targets(
         rois[:, 1:5].data, gt_boxes[gt_assignment[keep_inds]][:, :4].data,

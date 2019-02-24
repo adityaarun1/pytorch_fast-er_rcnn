@@ -282,8 +282,13 @@ class SolverWrapper(object):
             now = time.time()
             if iter == 1 or now - last_summary_time > cfg.TRAIN.SUMMARY_INTERVAL:
                 # Compute the graph with summary
-                rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, total_loss, summary = \
-                  self.net.train_step_with_summary(blobs, self.optimizer)
+                if cfg.TRAIN.HAS_RPN:
+                    rpn_loss_cls, rpn_loss_box, loss_cls,\
+                        loss_box, total_loss, summary = self.net.train_step_with_summary(
+                        blobs, self.optimizer)
+                else:
+                    loss_cls, loss_box, loss, summary = self.net.train_step_with_summary(
+                        blobs, self.optimizer)
                 for _sum in summary:
                     self.writer.add_summary(_sum, float(iter))
                 # Also check the summary on the validation set
@@ -294,15 +299,25 @@ class SolverWrapper(object):
                 last_summary_time = now
             else:
                 # Compute the graph without summary
-                rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, total_loss = \
-                  self.net.train_step(blobs, self.optimizer)
+                if cfg.TRAIN.HAS_RPN:
+                    rpn_loss_cls, rpn_loss_box, loss_cls,\
+                        loss_box, total_loss = self.net.train_step(
+                            blobs, self.optimizer)
+                else:
+                    loss_cls, loss_box, loss, summary = self.net.train_step(
+                        blobs, self.optimizer)
             utils.timer.timer.toc()
 
             # Display training information
             if iter % (cfg.TRAIN.DISPLAY) == 0:
-                print('iter: %d / %d, total loss: %.6f\n >>> rpn_loss_cls: %.6f\n '
+                if cfg.TRAIN.HAS_RPN:
+                    print('iter: %d / %d, total loss: %.6f\n >>> rpn_loss_cls: %.6f\n '
                       '>>> rpn_loss_box: %.6f\n >>> loss_cls: %.6f\n >>> loss_box: %.6f\n >>> lr: %f' % \
                       (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, lr))
+                else:
+                    print('iter: %d / %d, total loss: %.6f\n '
+                      '>>> loss_cls: %.6f\n >>> loss_box: %.6f\n >>> lr: %f' % \
+                      (iter, max_iters, total_loss, loss_cls, loss_box, lr))
                 print('speed: {:.3f}s / iter'.format(
                     utils.timer.timer.average_time()))
 

@@ -55,20 +55,15 @@ def get_minibatch(roidb, num_classes):
         [im_blob.shape[1], im_blob.shape[2], im_scales[0]], dtype=np.float32)
 
     if not cfg.TRAIN.HAS_RPN:  # not using RPN
-        # Now, build the region of interest and label blobs
+        # Now, build the region of interest blob
         rois_blob = np.zeros((0, 5), dtype=np.float32)
-        labels_blob = np.zeros((0), dtype=np.float32)
 
         im_rois = roidb[0]['boxes']
-        labels = roidb[0]['max_classes']
 
         rois = _project_im_rois(im_rois, im_scales[0])
         # rois_blob_this_image : (0, x1, y1, x2, y2)
         rois_blob_this_image = np.hstack((0, rois))
         rois_blob = np.vstack((rois_blob, rois_blob_this_image))
-
-        # Add to labels, bbox targets, and bbox loss blobs
-        labels_blob = np.hstack((labels_blob, labels))
 
         # For debug visualizations
         # all_overlaps = []
@@ -77,7 +72,6 @@ def get_minibatch(roidb, num_classes):
         # _vis_minibatch(im_blob, rois_blob, labels_blob, all_overlaps)
 
         blobs['rois'] = rois_blob
-        blobs['labels'] = labels_blob
 
     return blobs
 

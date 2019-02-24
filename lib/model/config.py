@@ -121,7 +121,7 @@ __C.TRAIN.PROPOSAL_METHOD = 'gt'
 # on zero-padding.
 
 # Use RPN to detect objects
-__C.TRAIN.HAS_RPN = True
+__C.TRAIN.HAS_RPN = False
 
 # IOU >= thresh: positive example
 __C.TRAIN.RPN_POSITIVE_OVERLAP = 0.7
@@ -245,6 +245,13 @@ __C.MOBILENET.DEPTH_MULTIPLIER = 1.
 #
 # MISC
 #
+
+# The mapping from image coordinates to feature map coordinates might cause
+# some boxes that are distinct in image space to become identical in feature
+# coordinates. If DEDUP_BOXES > 0, then DEDUP_BOXES is used as the scale factor
+# for identifying duplicate boxes.
+# 1/16 is correct for {Alex,Caffe}Net, VGG_CNN_M_1024, and VGG16
+__C.DEDUP_BOXES = 1./16.
 
 # Pixel mean values (BGR order) as a (1, 1, 3) array
 # We use the same pixel mean for all networks even though it's not exactly what

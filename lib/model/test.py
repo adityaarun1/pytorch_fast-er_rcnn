@@ -66,10 +66,52 @@ def _get_image_blob(im):
     return blob, np.array(im_scale_factors)
 
 
-def _get_blobs(im):
+def _get_rois_blob(im_rois, im_scale_factors):
+    """Converts RoIs into network inputs.
+    Arguments:
+        im_rois (ndarray): R x 4 matrix of RoIs in original image coordinates
+        im_scale_factors (list): scale factors as returned by _get_image_blob
+    Returns:
+        blob (ndarray): R x 5 matrix of RoIs in the image pyramid
+    """
+    rois, levels = _project_im_rois(im_rois, im_scale_factors)
+    rois_blob = np.hstack((levels, rois))
+    return rois_blob.astype(np.float32, copy=False)
+
+
+def _project_im_rois(im_rois, scales):
+    """Project image RoIs into the image pyramid built by _get_image_blob.
+    Arguments:
+        im_rois (ndarray): R x 4 matrix of RoIs in original image coordinates
+        scales (list): scale factors as returned by _get_image_blob
+    Returns:
+        rois (ndarray): R x 4 matrix of projected RoI coordinates
+        levels (list): image pyramid levels used by each projected RoI
+    """
+    im_rois = im_rois.astype(np.float, copy=False)
+
+    if len(scales) > 1:
+        widths = im_rois[:, 2] - im_rois[:, 0] + 1
+        heights = im_rois[:, 3] - im_rois[:, 1] + 1
+
+        areas = widths * heights
+        scaled_areas = areas[:, np.newaxis] * (scales[np.newaxis, :] ** 2)
+        diff_areas = np.abs(scaled_areas - 224 * 224)
+        levels = diff_areas.argmin(axis=1)[:, np.newaxis]
+    else:
+        levels = np.zeros((im_rois.shape[0], 1), dtype=np.int)
+
+    rois = im_rois * scales[levels]
+
+    return rois, levels
+
+
+def _get_blobs(im, rois):
     """Convert an image and RoIs within that image into network inputs."""
     blobs = {}
     blobs['data'], im_scale_factors = _get_image_blob(im)
+    if not cfg.TEST.HAS_RPN:
+        blobs['rois'] = _get_rois_blob(rois, im_scale_factors)
 
     return blobs, im_scale_factors
 
@@ -95,16 +137,32 @@ def _rescale_boxes(boxes, inds, scales):
     return boxes
 
 
-def im_detect(net, im):
-    blobs, im_scales = _get_blobs(im)
+def im_detect(net, im, proposal_rois=None):
+    blobs, im_scales = _get_blobs(im, proposal_rois)
     assert len(im_scales) == 1, "Only single-image batch implemented"
+
+    # When mapping from image ROIs to feature map ROIs, there's some aliasing
+    # (some distinct image ROIs get mapped to the same feature ROI).
+    # Here, we identify duplicate feature ROIs, so we only compute features
+    # on the unique subset.
+    if cfg.DEDUP_BOXES > 0 and not cfg.TEST.HAS_RPN:
+        v = np.array([1, 1e3, 1e6, 1e9, 1e12])
+        hashes = np.round(blobs['rois'] * cfg.DEDUP_BOXES).dot(v)
+        _, index, inv_index = np.unique(hashes, return_index=True,
+                                        return_inverse=True)
+        blobs['rois'] = blobs['rois'][index, :]
+        proposal_rois = proposal_rois[index, :]
 
     im_blob = blobs['data']
     blobs['im_info'] = np.array(
         [im_blob.shape[1], im_blob.shape[2], im_scales[0]], dtype=np.float32)
 
-    _, scores, bbox_pred, rois = net.test_image(blobs['data'],
-                                                blobs['im_info'])
+    if cfg.TEST.HAS_RPN:
+        _, scores, bbox_pred, rois = net.test_image(blobs['data'],
+                                                blobs['im_info'], None)
+    else:
+        _, scores, bbox_pred, rois = net.test_image(blobs['data'],
+                                                blobs['im_info'], blobs['rois'])
 
     boxes = rois[:, 1:5] / im_scales[0]
     scores = np.reshape(scores, [scores.shape[0], -1])
@@ -118,6 +176,11 @@ def im_detect(net, im):
     else:
         # Simply repeat the boxes, once for each class
         pred_boxes = np.tile(boxes, (1, scores.shape[1]))
+
+    if cfg.DEDUP_BOXES > 0 and not cfg.TEST.HAS_RPN:
+        # Map scores and predictions back to the original set of boxes
+        scores = scores[inv_index, :]
+        pred_boxes = pred_boxes[inv_index, :]
 
     return scores, pred_boxes
 
@@ -133,14 +196,30 @@ def test_net(net, imdb, weights_filename, max_per_image=100, thresh=0.):
                  for _ in range(imdb.num_classes)]
 
     output_dir = get_output_dir(imdb, weights_filename)
+
     # timers
     _t = {'im_detect': Timer(), 'misc': Timer()}
 
+    if not cfg.TEST.HAS_RPN:
+        roidb = imdb.roidb
+
     for i in range(num_images):
+        # filter out any ground truth boxes
+        if cfg.TEST.HAS_RPN:
+            box_proposals = None
+        else:
+            # The roidb may contain ground-truth rois (for example, if the roidb
+            # comes from the training or val split). We only want to evaluate
+            # detection on the *non*-ground-truth rois. We select those the rois
+            # that have the gt_classes field set to 0, which means there's no
+            # ground truth.
+            box_proposals = roidb[i]['boxes'][roidb[i]['gt_classes'] == 0]
+
+
         im = cv2.imread(imdb.image_path_at(i))
 
         _t['im_detect'].tic()
-        scores, boxes = im_detect(net, im)
+        scores, boxes = im_detect(net, im, box_proposals)
         _t['im_detect'].toc()
 
         _t['misc'].tic()
