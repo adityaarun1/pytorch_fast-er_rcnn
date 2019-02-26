@@ -468,9 +468,10 @@ class Network(nn.Module):
                 m.weight.data.normal_(mean, stddev)
             m.bias.data.zero_()
 
-        normal_init(self.rpn_net, 0, 0.01, cfg.TRAIN.TRUNCATED)
-        normal_init(self.rpn_cls_score_net, 0, 0.01, cfg.TRAIN.TRUNCATED)
-        normal_init(self.rpn_bbox_pred_net, 0, 0.01, cfg.TRAIN.TRUNCATED)
+        if cfg.TRAIN.HAS_RPN:
+            normal_init(self.rpn_net, 0, 0.01, cfg.TRAIN.TRUNCATED)
+            normal_init(self.rpn_cls_score_net, 0, 0.01, cfg.TRAIN.TRUNCATED)
+            normal_init(self.rpn_bbox_pred_net, 0, 0.01, cfg.TRAIN.TRUNCATED)
         normal_init(self.cls_score_net, 0, 0.01, cfg.TRAIN.TRUNCATED)
         normal_init(self.bbox_pred_net, 0, 0.001, cfg.TRAIN.TRUNCATED)
 

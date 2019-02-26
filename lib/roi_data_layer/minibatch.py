@@ -62,7 +62,7 @@ def get_minibatch(roidb, num_classes):
 
         rois = _project_im_rois(im_rois, im_scales[0])
         # rois_blob_this_image : (0, x1, y1, x2, y2)
-        rois_blob_this_image = np.hstack((0, rois))
+        rois_blob_this_image = np.hstack(([[0.]], rois))
         rois_blob = np.vstack((rois_blob, rois_blob_this_image))
 
         # For debug visualizations
