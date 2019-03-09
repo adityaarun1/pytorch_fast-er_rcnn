@@ -61,8 +61,9 @@ def get_minibatch(roidb, num_classes):
         im_rois = roidb[0]['boxes']
 
         rois = _project_im_rois(im_rois, im_scales[0])
-        # rois_blob_this_image : (0, x1, y1, x2, y2)
-        rois_blob_this_image = np.hstack(([[0.]], rois))
+        # rois_blob_this_image : (0, x1, y1, x2, y2); 0 here is batch index
+        batch_idx = np.zeros((rois.shape[0],1))
+        rois_blob_this_image = np.hstack((batch_idx, rois))
         rois_blob = np.vstack((rois_blob, rois_blob_this_image))
 
         # For debug visualizations
@@ -71,7 +72,7 @@ def get_minibatch(roidb, num_classes):
         # all_overlaps = np.hstack((all_overlaps, overlaps))
         # _vis_minibatch(im_blob, rois_blob, labels_blob, all_overlaps)
 
-        blobs['rois'] = rois_blob
+        blobs['rois'] = np.float32(rois_blob)
 
     return blobs
 

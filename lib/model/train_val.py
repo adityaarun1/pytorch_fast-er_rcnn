@@ -304,7 +304,7 @@ class SolverWrapper(object):
                         loss_box, total_loss = self.net.train_step(
                             blobs, self.optimizer)
                 else:
-                    loss_cls, loss_box, loss, summary = self.net.train_step(
+                    loss_cls, loss_box, total_loss = self.net.train_step(
                         blobs, self.optimizer)
             utils.timer.timer.toc()
 

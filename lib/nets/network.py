@@ -396,7 +396,8 @@ class Network(nn.Module):
         net_conv = self._image_to_head()
 
         # build the anchors for the image
-        self._anchor_component(net_conv.size(2), net_conv.size(3))
+        if cfg.TRAIN.HAS_RPN or cfg.TEST.HAS_RPN:
+            self._anchor_component(net_conv.size(2), net_conv.size(3))
 
         if cfg.TRAIN.HAS_RPN:
             rois = self._region_proposal(net_conv)
