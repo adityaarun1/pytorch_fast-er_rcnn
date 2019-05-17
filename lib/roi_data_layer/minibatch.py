@@ -56,23 +56,14 @@ def get_minibatch(roidb, num_classes):
 
     if not cfg.TRAIN.HAS_RPN:  # not using RPN
         # Now, build the region of interest blob
-        rois_blob = np.zeros((0, 5), dtype=np.float32)
+        roi_inds = np.where(roidb[0]['gt_classes'] == 0)[0] # remove gt_rois in roi_boxes
+        roi_boxes = np.empty((len(roi_inds), 5), dtype=np.float32)
+        im_rois = roidb[0]['boxes'][roi_inds,:]
 
-        im_rois = roidb[0]['boxes']
-
-        rois = _project_im_rois(im_rois, im_scales[0])
         # rois_blob_this_image : (0, x1, y1, x2, y2); 0 here is batch index
-        batch_idx = np.zeros((rois.shape[0],1))
-        rois_blob_this_image = np.hstack((batch_idx, rois))
-        rois_blob = np.vstack((rois_blob, rois_blob_this_image))
-
-        # For debug visualizations
-        # all_overlaps = []
-        # overlaps = roidb[0]['max_overlaps']
-        # all_overlaps = np.hstack((all_overlaps, overlaps))
-        # _vis_minibatch(im_blob, rois_blob, labels_blob, all_overlaps)
-
-        blobs['rois'] = np.float32(rois_blob)
+        roi_boxes[:, 1:] = _project_im_rois(im_rois, im_scales[0])
+        roi_boxes[:, 0] = 0
+        blobs['rois'] = roi_boxes
 
     return blobs
 

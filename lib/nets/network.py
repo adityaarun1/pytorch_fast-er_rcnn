@@ -72,8 +72,7 @@ class Network(nn.Module):
         return tb.summary.histogram(
             'ACT/' + key + '/activations',
             tensor.data.cpu().numpy(),
-            bins='auto'),
-        tb.summary.scalar('ACT/' + key + '/zero_fraction',
+            bins='auto'), tb.summary.scalar('ACT/' + key + '/zero_fraction',
                           (tensor.data == 0).float().sum() / tensor.numel())
 
     def _add_score_summary(self, key, tensor):
