@@ -280,7 +280,8 @@ class SolverWrapper(object):
             blobs = self.data_layer.forward()
 
             now = time.time()
-            if False: # iter == 1 or now - last_summary_time > cfg.TRAIN.SUMMARY_INTERVAL:
+            if iter == 1 or now - last_summary_time > cfg.TRAIN.SUMMARY_INTERVAL: # if False:
+            ## Replace the above line with if False to avoid tensorboard protobuf error.
                 # Compute the graph with summary
                 if cfg.TRAIN.HAS_RPN:
                     rpn_loss_cls, rpn_loss_box, loss_cls,\
