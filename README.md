@@ -1,11 +1,12 @@
-# pytorch-faster-rcnn
-A pytorch implementation of fast RCNN and faster RCNN detection framework based on Xinlei Chen's [tf-faster-rcnn](https://github.com/endernewton/tf-faster-rcnn) and the python Caffe implementation of faster RCNN available [here](https://github.com/rbgirshick/py-faster-rcnn).
+# pytorch_fast-er_rcnn
+A pytorch implementation of fast RCNN and faster RCNN detection framework based on Ruotian(RT) Luo's [pytorch-faster-rcnn](https://github.com/ruotianluo/pytorch-faster-rcnn), Xinlei Chen's [tf-faster-rcnn](https://github.com/endernewton/tf-faster-rcnn) and the python Caffe implementation of faster RCNN available [here](https://github.com/rbgirshick/py-faster-rcnn).
 
 **Note**: Several minor modifications are made when reimplementing the framework, which give potential improvements. For details about the modifications and ablative analysis, please refer to the technical report [An Implementation of Faster RCNN with Study for Region Sampling](https://arxiv.org/pdf/1702.02138.pdf). If you are seeking to reproduce the results in the original paper, please use the [official code](https://github.com/ShaoqingRen/faster_rcnn) or maybe the [semi-official code](https://github.com/rbgirshick/py-faster-rcnn). For details about the faster RCNN architecture please refer to the paper [Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks](http://arxiv.org/pdf/1506.01497.pdf).
 
 ### Detection Performance
 The current code supports **VGG16**, **Resnet V1** and **Mobilenet V1** models. We mainly tested it on plain VGG16 and Resnet101 architecture. As the baseline, we report numbers using a single model on a single convolution layer, so no multi-scale, no multi-stage bounding box regression, no skip-connection, no extra input is used. The only data augmentation technique is left-right flipping during training following the original Faster RCNN. All models are released.
 
+#### Faster R-CNN
 With VGG16 (``conv5_3``):
   - Train on VOC 2007 trainval and test on VOC 2007 test, **71.22**(from scratch) **70.75**(converted) (**70.8** for tf-faster-rcnn).
   - Train on VOC 2007+2012 trainval and test on VOC 2007 test ([R-FCN](https://github.com/daijifeng001/R-FCN) schedule), **75.33**(from scratch) **75.27**(converted) (**75.7** for tf-faster-rcnn).
@@ -25,6 +26,10 @@ Approximate *baseline* [setup](https://github.com/endernewton/tf-faster-rcnn/blo
   - Train Resnet50 on COCO 2014 trainval35k and test on minival (900k/1190k), ~~**34.2**~~.
   - Train Resnet101 on COCO 2014 trainval35k and test on minival (900k/1190k), ~~**37.4**~~.
   - Train Resnet152 on COCO 2014 trainval35k and test on minival (900k/1190k), ~~**38.2**~~.
+
+#### Fast R-CNN
+With VGG16 (``Conv 5-3``):
+  - Train on VOC 2007 trainval and test on VOC 2007 test, **69.58** (from scratch)
 
 **Note**:
   - Due to the randomness in GPU training especially for VOC, the best numbers are reported (with 2-3 attempts) here. According to Xinlei's experience, for COCO you can almost always get a very close number (within ~0.2%) despite the randomness.
@@ -51,8 +56,8 @@ Additional features not mentioned in the [report](https://arxiv.org/pdf/1702.021
   - **Support for visualization**. The current implementation will summarize ground truth boxes, statistics of losses, activations and variables during training, and dump it to a separate folder for tensorboard visualization. The computing graph is also saved for debugging.
 
 ### Prerequisites
-  - A basic pytorch installation. The code follows **1.0**. If you are using old **0.1.12** or **0.2** or **0.3** or **0.4**, you can checkout the corresponding branch.
-  - Python packages you might not have: `opencv-python`, `easydict` (similar to [py-faster-rcnn](https://github.com/rbgirshick/py-faster-rcnn)). For `easydict` make sure you have the right version. Xinlei uses 1.6.
+  - A basic pytorch installation. The code follows **1.0**. 
+  - Python packages you might not have: `opencv-python`, `easydict` (similar to [py-faster-rcnn](https://github.com/rbgirshick/py-faster-rcnn)). 
   - [tensorboard-pytorch](https://github.com/lanpa/tensorboard-pytorch) to visualize the training and validation curve. Please build from source to use the latest tensorflow-tensorboard.
 
 ### Installation
@@ -78,18 +83,22 @@ Additional features not mentioned in the [report](https://arxiv.org/pdf/1702.021
   ```
 
 ### Setup data
-Please follow the instructions of py-faster-rcnn [here](https://github.com/rbgirshick/py-faster-rcnn#beyond-the-demo-installation-for-training-and-testing-models) to setup VOC and COCO datasets (Part of COCO is done). The steps involve downloading data and optionally creating soft links in the ``data`` folder. Since faster RCNN does not rely on pre-computed proposals, it is safe to ignore the steps that setup proposals.
+Please follow the instructions of py-faster-rcnn [here](https://github.com/rbgirshick/py-faster-rcnn#beyond-the-demo-installation-for-training-and-testing-models) to setup VOC and COCO datasets (Part of COCO is done). The steps involve downloading data and optionally creating soft links in the ``data`` folder. Since faster RCNN does not rely on pre-computed proposals, it is safe to ignore the steps that setup proposals. For fast RCNN, follow the steps to setup the proposals.
 
-If you find it useful, the ``data/cache`` folder created on Xinlei's side is also shared [here](https://drive.google.com/drive/folders/0B1_fAEgxdnvJSmF3YUlZcHFqWTQ).
+#### Proposal Setup for fast RCNN
+```Shell
+cd data/scripts
+./fetch_selective_search_data.sh
+```
 
 ### Demo and Test with pre-trained models
-1. Download pre-trained model (only google drive works)
+1. Download pre-trained model (only google drive works - coming shortly)
   <!-- ```Shell
   # Resnet101 for voc pre-trained on 07+12 set
   # ./data/scripts/fetch_faster_rcnn_models.sh
   ```
   **Note**: if you cannot download the models through the link, or you want to try more models, you can check out the following solutions and optionally update the downloading script: -->
-  - Google drive [here](https://drive.google.com/open?id=0B7fNdx_jAqhtNE10TDZDbFRuU0E).
+  - Google drive (Coming shortly).
 
 **(Optional)**
 Instead of downloading my pretrained or converted model, you can also convert from tf-faster-rcnn model.
@@ -125,7 +134,6 @@ This script will create a `.pth` file with the same name in the same folder as t
   GPU_ID=0
   ./experiments/scripts/test_faster_rcnn.sh $GPU_ID pascal_voc_0712 res101
   ```
-  **Note**: If you cannot get the reported numbers (79.8 on my side), then probably the NMS function is compiled improperly, refer to [Issue 5](https://github.com/endernewton/tf-faster-rcnn/issues/5).
 
 ### Train your own model
 1. Download pre-trained models and weights. The current code support VGG16 and Resnet V1 models. Pre-trained models are provided by [pytorch-vgg](https://github.com/jcjohnson/pytorch-vgg.git) and [pytorch-resnet](https://github.com/ruotianluo/pytorch-resnet) (the ones with caffe in the name), you can download the pre-trained models and set them in the ``data/imagenet_weights`` folder. For example for VGG16 model, you can set up like:
@@ -226,6 +234,9 @@ tensorboard/[NET]/[DATASET]/default_val/
 
 The default number of training iterations is kept the same to the original faster RCNN for VOC 2007, however Xinlei finds it is beneficial to train longer (see [report](https://arxiv.org/pdf/1702.02138.pdf) for COCO), probably due to the fact that the image batch size is one. For VOC 07+12 we switch to a 80k/110k schedule following [R-FCN](https://github.com/daijifeng001/R-FCN). Also note that due to the nondeterministic nature of the current implementation, the performance can vary a bit, but in general it should be within ~1% of the reported numbers for VOC, and ~0.2% of the reported numbers for COCO. Suggestions/Contributions are welcome.
 
+### Known Issues
+Using tensorboard sometimes leads to the code crashing due to large protobuf file size. See the issue [here](https://github.com/ruotianluo/pytorch-faster-rcnn/issues/16) and [here](https://github.com/lanpa/tensorboardX/issues/52). Replace [this condition](https://github.com/adityaarun1/pytorch_fast-er_rcnn/blob/master/lib/model/train_val.py#L283) with ``if False:``.
+
 ### Citation
 If you find this implementation or the analysis conducted in our report helpful, please consider citing:
 
@@ -246,38 +257,5 @@ For convenience, here is the faster RCNN citation:
         Year = {2015}
     }
 
-### ~~Detailed numbers from COCO server~~ (not supported)
 
-All the models are trained on COCO 2014 [trainval35k](https://github.com/rbgirshick/py-faster-rcnn/tree/master/models).
-
-VGG16 COCO 2015 test-dev (900k/1190k):
-```
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.297
- Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.504
- Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.312
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.128
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.325
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.421
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.272
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.399
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.409
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.187
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.451
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.591
- ```
-
-VGG16 COCO 2015 test-std (900k/1190k):
- ```
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.295
- Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.501
- Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.312
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.119
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.327
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.418
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.273
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.400
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.409
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.179
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.455
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.586
  ```
