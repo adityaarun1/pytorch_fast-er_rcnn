@@ -56,7 +56,7 @@ __C.TRAIN.ASPECT_GROUPING = False
 __C.TRAIN.SNAPSHOT_KEPT = 3
 
 # The time interval for saving tensorflow summaries
-__C.TRAIN.SUMMARY_INTERVAL = 500 
+__C.TRAIN.SUMMARY_INTERVAL = 180 
 
 # Scale to use during training (can list multiple scales)
 # The scale is the pixel size of an image's shortest side

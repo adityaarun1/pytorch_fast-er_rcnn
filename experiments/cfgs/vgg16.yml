@@ -12,4 +12,4 @@ TRAIN:
   SNAPSHOT_PREFIX: vgg16_faster_rcnn
 TEST:
   HAS_RPN: False
-POOLING_MODE: align 
+POOLING_MODE: pool 
