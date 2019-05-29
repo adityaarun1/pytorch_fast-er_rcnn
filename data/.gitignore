@@ -1,5 +1,5 @@
 selective_search*
-imagenet_*
+*.pth
 fast_rcnn_*
 VOCdevkit*
 coco*
