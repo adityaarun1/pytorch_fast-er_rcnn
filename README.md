@@ -56,7 +56,8 @@ Additional features not mentioned in the [report](https://arxiv.org/pdf/1702.021
   - **Support for visualization**. The current implementation will summarize ground truth boxes, statistics of losses, activations and variables during training, and dump it to a separate folder for tensorboard visualization. The computing graph is also saved for debugging.
 
 ### Prerequisites
-  - A basic pytorch installation. The code follows **1.0**. 
+  - A basic pytorch installation. The code follows **1.0**.
+  - Torchvision **0.3**. This code uses `torchvision.ops` for `nms`, `roi_pool` and `roi_align`.
   - Python packages you might not have: `opencv-python`, `easydict` (similar to [py-faster-rcnn](https://github.com/rbgirshick/py-faster-rcnn)). 
   - [tensorboard-pytorch](https://github.com/lanpa/tensorboard-pytorch) to visualize the training and validation curve. Please build from source to use the latest tensorflow-tensorboard.
 
@@ -66,14 +67,7 @@ Additional features not mentioned in the [report](https://arxiv.org/pdf/1702.021
   git clone https://github.com/adityaarun1/pytorch-fast-er-rcnn.git
   ```
 
-2. Compile modules(nms, roi_pooling, and roi_align(from [facebookresearch/maskrcnn-benchmark](https://github.com/facebookresearch/maskrcnn-benchmark.git))):
-  ```
-  cd pytorch-faster-rcnn/lib
-  python setup.py build develop
-  cd ../
-  ```
-
-3. Install the [Python COCO API](https://github.com/pdollar/coco). The code requires the API to access COCO dataset.
+2. Install the [Python COCO API](https://github.com/pdollar/coco). The code requires the API to access COCO dataset.
   ```Shell
   cd data
   git clone https://github.com/pdollar/coco.git
