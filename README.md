@@ -1,5 +1,5 @@
 # pytorch_fast-er_rcnn
-A pytorch implementation of fast RCNN and faster RCNN detection framework based on Ruotian(RT) Luo's [pytorch-faster-rcnn](https://github.com/ruotianluo/pytorch-faster-rcnn), Xinlei Chen's [tf-faster-rcnn](https://github.com/endernewton/tf-faster-rcnn) and the python Caffe implementation of faster RCNN available [here](https://github.com/rbgirshick/py-faster-rcnn).
+A pytorch implementation of fast R-CNN and faster R-CNN detection framework based on Ruotian(RT) Luo's [pytorch-faster-rcnn](https://github.com/ruotianluo/pytorch-faster-rcnn), Xinlei Chen's [tf-faster-rcnn](https://github.com/endernewton/tf-faster-rcnn) and the python Caffe implementation of faster RCNN available [here](https://github.com/rbgirshick/py-faster-rcnn).
 
 **Note**: Several minor modifications are made when reimplementing the framework, which give potential improvements. For details about the modifications and ablative analysis, please refer to the technical report [An Implementation of Faster RCNN with Study for Region Sampling](https://arxiv.org/pdf/1702.02138.pdf). If you are seeking to reproduce the results in the original paper, please use the [official code](https://github.com/ShaoqingRen/faster_rcnn) or maybe the [semi-official code](https://github.com/rbgirshick/py-faster-rcnn). For details about the faster RCNN architecture please refer to the paper [Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks](http://arxiv.org/pdf/1506.01497.pdf).
 
@@ -59,7 +59,7 @@ Additional features not mentioned in the [report](https://arxiv.org/pdf/1702.021
   - A basic pytorch installation. The code follows **1.0**.
   - Torchvision **0.3**. This code uses `torchvision.ops` for `nms`, `roi_pool` and `roi_align`.
   - Python packages you might not have: `opencv-python`, `easydict` (similar to [py-faster-rcnn](https://github.com/rbgirshick/py-faster-rcnn)). 
-  - [tensorboard-pytorch](https://github.com/lanpa/tensorboard-pytorch) to visualize the training and validation curve. Please build from source to use the latest tensorflow-tensorboard.
+  - [tensorboardX](https://github.com/lanpa/tensorboardX) to visualize the training and validation curve. Please build from source to use the latest tensorflow-tensorboard.
 
 ### Installation
 1. Clone the repository
