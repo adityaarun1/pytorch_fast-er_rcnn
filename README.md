@@ -56,7 +56,7 @@ Additional features not mentioned in the [report](https://arxiv.org/pdf/1702.021
   - **Support for visualization**. The current implementation will summarize ground truth boxes, statistics of losses, activations and variables during training, and dump it to a separate folder for tensorboard visualization. The computing graph is also saved for debugging.
 
 ### Prerequisites
-  - A basic pytorch installation. The code follows **1.0**.
+  - A basic pytorch installation. The code follows **1.1**.
   - Torchvision **0.3**. This code uses `torchvision.ops` for `nms`, `roi_pool` and `roi_align`.
   - Python packages you might not have: `opencv-python`, `easydict` (similar to [py-faster-rcnn](https://github.com/rbgirshick/py-faster-rcnn)). 
   - [tensorboardX](https://github.com/lanpa/tensorboardX) to visualize the training and validation curve. Please build from source to use the latest tensorflow-tensorboard.
