@@ -248,7 +248,7 @@ class imdb(object):
                 gt_boxes = gt_roidb[i]['boxes']
                 gt_classes = gt_roidb[i]['gt_classes']
                 gt_overlaps = bbox_overlaps(
-                    boxes.astype(np.float), gt_boxes.astype(np.float))
+                    boxes.astype(float), gt_boxes.astype(float))
                 argmaxes = gt_overlaps.argmax(axis=1)
                 maxes = gt_overlaps.max(axis=1)
                 I = np.where(maxes > 0)[0]
